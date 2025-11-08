@@ -17,6 +17,7 @@ const config = defineConfig(() => {
             include: ['src/server/**/*.test.ts'],
             environment: 'node',
             name: 'server',
+            setupFiles: ["./vitest.server.setup.ts"],
           }
         },
         {

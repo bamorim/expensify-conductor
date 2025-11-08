@@ -10,19 +10,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
+model Organization {
+    id        String   @id @default(cuid())
     name      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
+    memberships      OrganizationMembership[]
+    categories       ExpenseCategory[]
+    policies         Policy[]
+    expenses         Expense[]
 }
 
-// Necessary for Next auth
+model OrganizationMembership {
+    id        String   @id @default(cuid())
+    role      OrganizationRole
+    createdAt DateTime @default(now())
+
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([organizationId, userId])
+    @@index([userId])
+    @@index([organizationId])
+}
+
+enum OrganizationRole {
+    ADMIN
+    MEMBER
+}
+
+model ExpenseCategory {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    policies Policy[]
+    expenses Expense[]
+
+    @@index([organizationId])
+}
+
+model Policy {
+    id          String       @id @default(cuid())
+    maxAmount   Int
+    period      PolicyPeriod
+    autoApprove Boolean      @default(false)
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    categoryId String
+    category   ExpenseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([organizationId])
+    @@index([categoryId])
+    @@index([userId])
+}
+
+enum PolicyPeriod {
+    MONTHLY
+    YEARLY
+}
+
+model Expense {
+    id          String        @id @default(cuid())
+    amount      Int
+    date        DateTime
+    description String
+    status      ExpenseStatus @default(SUBMITTED)
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    categoryId String
+    category   ExpenseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+    reviews ExpenseReview[]
+
+    @@index([organizationId])
+    @@index([userId])
+    @@index([categoryId])
+    @@index([status])
+}
+
+enum ExpenseStatus {
+    SUBMITTED
+    APPROVED
+    REJECTED
+}
+
+model ExpenseReview {
+    id        String        @id @default(cuid())
+    status    ExpenseStatus
+    comment   String?
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+
+    expenseId String
+    expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+    reviewerId String
+    reviewer   User   @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+    @@index([expenseId])
+    @@index([reviewerId])
+}
+
 model Account {
     id                       String  @id @default(cuid())
     userId                   String
@@ -40,6 +152,7 @@ model Account {
     refresh_token_expires_in Int?
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -48,6 +161,8 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model User {
@@ -58,7 +173,11 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+
+    memberships     OrganizationMembership[]
+    policies        Policy[]
+    expenses        Expense[]
+    expenseReviews  ExpenseReview[]
 }
 
 model VerificationToken {
