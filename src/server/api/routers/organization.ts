@@ -88,6 +88,28 @@ export const organizationRouter = createTRPCRouter({
       };
     }),
 
+  getCurrentMembership: protectedProcedure
+    .input(z.object({ organizationId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const membership = await ctx.db.organizationMembership.findUnique({
+        where: {
+          organizationId_userId: {
+            organizationId: input.organizationId,
+            userId: ctx.session.user.id,
+          },
+        },
+      });
+
+      if (!membership) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a member of this organization",
+        });
+      }
+
+      return membership;
+    }),
+
   update: protectedProcedure
     .input(z.object({ id: z.string(), name: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
