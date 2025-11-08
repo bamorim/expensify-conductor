@@ -1,4 +1,5 @@
 import { organizationRouter } from "~/server/api/routers/organization";
+import { categoryRouter } from "~/server/api/routers/category";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   organization: organizationRouter,
+  category: categoryRouter,
 });
 
 // export type definition of API
