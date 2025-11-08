@@ -82,3 +82,25 @@ export async function createTestExpense(
     },
   });
 }
+
+export async function createTestPolicy(
+  organizationId: string,
+  categoryId: string,
+  data?: {
+    userId?: string;
+    maxAmount?: number;
+    period?: "MONTHLY" | "YEARLY";
+    autoApprove?: boolean;
+  },
+) {
+  return db.policy.create({
+    data: {
+      organizationId,
+      categoryId,
+      userId: data?.userId,
+      maxAmount: data?.maxAmount ?? 100000,
+      period: data?.period ?? "MONTHLY",
+      autoApprove: data?.autoApprove ?? false,
+    },
+  });
+}

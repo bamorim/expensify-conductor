@@ -84,7 +84,66 @@ When making architectural decisions:
 - **Test Coverage**: Aim for high coverage of business logic in procedures
 - **Mock Strategy**: Use `vitest-mock-extended` for Prisma mocking when needed
 - **Transactional Testing**: Use `@chax-at/transactional-prisma-testing` for database operations
-- When testing server code that require the database, remember to call `vi.mock("~/server/db")` to enable transactional testing
+- The `vi.mock("~/server/db")` call is automatically handled in `vitest.server.setup.ts` - do NOT add it to individual test files
+- Each test runs in its own transaction, providing isolation and automatic cleanup
+- Use factory functions from `~/test/factories` to create test data
+- Test file structure: place `*.test.ts` files alongside the code they test
+
+## Testing Tips for Agents
+### Running Tests
+- **All tests**: `pnpm test`
+- **Specific test file**: `pnpm test <file-path>`
+- **Watch mode**: `pnpm test --watch`
+- **Type checking**: `pnpm typecheck` or `pnpm tsc --noEmit`
+- **Linting**: `pnpm lint`
+- **Format check**: `pnpm format:check`
+
+### Writing Tests for tRPC Routers
+1. Import the router and create a caller:
+   ```typescript
+   import { myRouter } from "./my-router";
+   import { db } from "~/server/db";
+   
+   const session = createMockSession(user);
+   const caller = myRouter.createCaller({
+     db,
+     session,
+     headers: new Headers(),
+   });
+   ```
+
+2. Use factory functions to set up test data:
+   ```typescript
+   const user = await createTestUser();
+   const org = await createTestOrganization(user.id);
+   const category = await createTestCategory(org.id);
+   ```
+
+3. Test the procedure:
+   ```typescript
+   const result = await caller.myProcedure({ input: "data" });
+   expect(result).toBe(expected);
+   ```
+
+4. Test error cases:
+   ```typescript
+   await expect(
+     caller.myProcedure({ invalidInput: "data" })
+   ).rejects.toThrow("Expected error message");
+   ```
+
+### Common Testing Patterns
+- **Authorization tests**: Test both authorized and unauthorized access
+- **Validation tests**: Test input validation with valid and invalid data
+- **Edge cases**: Test boundary conditions, empty results, missing data
+- **Data isolation**: Ensure tests work across multiple organizations/users
+- **Cleanup**: Not needed - transactions handle cleanup automatically
+
+### Troubleshooting Tests
+- If tests fail to connect to database, check `.env.test` configuration
+- If mocking isn't working, verify `vitest.server.setup.ts` is being loaded
+- For slow tests, check for N+1 queries or missing indexes
+- Use `console.log()` sparingly - prefer `expect()` assertions for debugging
 
 ## Performance Requirements
 - **Page Load**: <2 seconds for all pages
