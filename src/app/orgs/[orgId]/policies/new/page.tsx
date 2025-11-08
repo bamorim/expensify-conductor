@@ -26,8 +26,11 @@ export default function NewPolicyPage() {
     organizationId: orgId,
   });
 
+  const utils = api.useUtils();
+
   const createPolicyMutation = api.policy.create.useMutation({
     onSuccess: () => {
+      utils.policy.list.invalidate();
       router.push(`/orgs/${orgId}/policies`);
     },
     onError: (err) => {
