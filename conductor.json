@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "setup": "./setup-conductor.sh",
+    "run": "pnpm dev --port $CONDUCTOR_PORT"
+  }
+}
