@@ -1,7 +1,7 @@
 {
   "scripts": {
     "setup": "./setup-conductor.sh",
-    "run": "pnpm dev",
+    "run": "pnpm exec dotenv -- pnpm dev",
     "archive": "docker compose down"
   }
 }
