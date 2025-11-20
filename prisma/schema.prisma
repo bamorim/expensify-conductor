@@ -21,6 +21,7 @@ model Organization {
     policies         Policy[]
     expenses         Expense[]
     groups           Group[]
+    messages         Message[]
 }
 
 model OrganizationMembership {
@@ -180,6 +181,7 @@ model User {
     expenses        Expense[]
     expenseReviews  ExpenseReview[]
     groupMemberships GroupMembership[]
+    messages        Message[]
 }
 
 model Group {
@@ -215,6 +217,22 @@ model GroupMembership {
 
     @@unique([groupId, userId])
     @@index([groupId])
+    @@index([userId])
+}
+
+model Message {
+    id        String   @id @default(cuid())
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    userId String
+    author User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([organizationId])
     @@index([userId])
 }
 

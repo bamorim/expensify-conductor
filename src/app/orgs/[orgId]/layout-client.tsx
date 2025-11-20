@@ -16,6 +16,7 @@ export default function OrgLayoutClient({
   const navItems = [
     { href: `/orgs/${orgId}/dashboard`, label: "Dashboard" },
     { href: `/orgs/${orgId}/groups`, label: "Groups" },
+    { href: `/orgs/${orgId}/messages`, label: "Messages" },
     { href: `/orgs/${orgId}/categories`, label: "Categories" },
     { href: `/orgs/${orgId}/policies`, label: "Policies" },
     { href: `/orgs/${orgId}/expenses`, label: "Expenses" },
