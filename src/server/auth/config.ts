@@ -1,4 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { Prisma } from "@prisma/client";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import Nodemailer from "next-auth/providers/nodemailer";
 import { env } from "~/env";
@@ -24,6 +25,27 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
+const prismaAdapter = PrismaAdapter(db);
+
+const adapter = {
+  ...prismaAdapter,
+  async deleteSession(sessionToken: string) {
+    if (!prismaAdapter.deleteSession) return null;
+
+    try {
+      return await prismaAdapter.deleteSession(sessionToken);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        return null;
+      }
+      throw error;
+    }
+  },
+};
+
 export const authConfig = {
   providers: [
     Nodemailer({
@@ -32,7 +54,7 @@ export const authConfig = {
     }),
   ],
   secret: env.AUTH_SECRET,
-  adapter: PrismaAdapter(db),
+  adapter,
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
