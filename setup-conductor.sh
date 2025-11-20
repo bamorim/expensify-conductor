@@ -28,4 +28,12 @@ EOF
 # Install dependencies
 pnpm install
 pnpm compose:up
+
+# Wait for PostgreSQL to be ready
+echo "Waiting for PostgreSQL to be ready..."
+until pg_isready -h localhost -p $DB_PORT -U postgres 2>/dev/null; do
+  sleep 1
+done
+echo "PostgreSQL is ready!"
+
 pnpm db:migrate
