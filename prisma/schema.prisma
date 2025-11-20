@@ -20,6 +20,7 @@ model Organization {
     categories       ExpenseCategory[]
     policies         Policy[]
     expenses         Expense[]
+    groups           Group[]
     messages         Message[]
 }
 
@@ -179,7 +180,44 @@ model User {
     policies        Policy[]
     expenses        Expense[]
     expenseReviews  ExpenseReview[]
+    groupMemberships GroupMembership[]
     messages        Message[]
+}
+
+model Group {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    parentGroupId String?
+    parentGroup   Group?  @relation("GroupHierarchy", fields: [parentGroupId], references: [id], onDelete: SetNull)
+    childGroups   Group[] @relation("GroupHierarchy")
+
+    members GroupMembership[]
+
+    @@unique([organizationId, name])
+    @@index([organizationId])
+    @@index([parentGroupId])
+}
+
+model GroupMembership {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    groupId String
+    group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([groupId, userId])
+    @@index([groupId])
+    @@index([userId])
 }
 
 model Message {
