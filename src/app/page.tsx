@@ -10,12 +10,12 @@ export default async function Home() {
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
         <section className="flex flex-col items-center gap-6 text-center">
           <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Expense Reimbursement
-            <span className="block text-indigo-300">Made Simple</span>
+            Stop Chasing Receipts
+            <span className="block text-indigo-300">Start Getting Reimbursed</span>
           </h1>
           <p className="max-w-2xl text-lg text-indigo-100 sm:text-xl">
-            Streamline your organization&apos;s expense management with automated
-            policy enforcement and seamless approval workflows.
+            Submit expenses in seconds, get approved in minutes. Smart policy checks
+            catch errors before they slow you down.
           </p>
         </section>
 
