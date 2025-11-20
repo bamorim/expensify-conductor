@@ -18,7 +18,7 @@ export default function OrganizationSettingsPage() {
     { enabled: !!orgId }
   );
 
-  const isAdmin = org?.currentUserRole === "ADMIN";
+  const isAdmin = org?.currentUserMembership?.role === "ADMIN";
 
   if (orgLoading || membersLoading) {
     return (
