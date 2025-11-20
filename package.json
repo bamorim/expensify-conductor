@@ -22,7 +22,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:reset": "dotenv -c test -- prisma migrate reset -f",
-    "test": "dotenv -c test -- vitest run"
+    "test": "dotenv -c test -- vitest run",
+    "compose:up": "dotenv -- docker compose up -d"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

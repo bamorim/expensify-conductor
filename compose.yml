@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: expensify
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -14,8 +14,8 @@ services:
   mailpit:
     image: axllent/mailpit
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "${HTTP_MAIL_PORT:-8025}:8025"
+      - "${SMTP_MAIL_PORT:-1025}:1025"
     restart: unless-stopped
 
 volumes:
