@@ -115,12 +115,12 @@ export default function MessagesPage() {
                     />
                   ) : (
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
-                      {message.author.name?.charAt(0).toUpperCase() ?? "?"}
+                      {(message.author.name ?? message.author.email)?.charAt(0).toUpperCase() ?? "?"}
                     </div>
                   )}
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      {message.author.name ?? "Anonymous"}
+                      {message.author.name ?? message.author.email ?? "Anonymous"}
                     </p>
                     <p className="text-xs text-gray-500">
                       {new Date(message.createdAt).toLocaleDateString("en-US", {
