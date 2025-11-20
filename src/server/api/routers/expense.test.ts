@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { expenseRouter } from "./expense";
 import { db } from "~/server/db";
 import {
@@ -9,11 +9,7 @@ import {
   createTestPolicy,
   createTestExpense,
 } from "~/test/factories";
-import { TRPCError } from "@trpc/server";
-
 describe("ExpenseRouter", () => {
-  beforeEach(() => {
-  });
 
   describe("submit", () => {
     it("should auto-reject expense over policy limit", async () => {

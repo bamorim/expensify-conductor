@@ -1,50 +1,52 @@
+import { Container, Title, SimpleGrid, Card, Text, Stack } from "@mantine/core";
+
 export default function DashboardPage() {
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-8 text-3xl font-bold text-gray-900">Dashboard</h1>
+    <Container size="xl" py="xl">
+      <Title order={1} mb="xl">Dashboard</Title>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-2 text-sm font-medium text-gray-600">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md" mb="xl">
+        <Card withBorder padding="lg">
+          <Text size="sm" fw={500} c="dimmed" mb="xs">
             Total Expenses
-          </h3>
-          <p className="text-3xl font-bold text-gray-900">0</p>
-          <p className="mt-1 text-sm text-gray-500">No expenses yet</p>
-        </div>
+          </Text>
+          <Text size="xl" fw={700}>0</Text>
+          <Text size="sm" c="dimmed">No expenses yet</Text>
+        </Card>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-2 text-sm font-medium text-gray-600">
+        <Card withBorder padding="lg">
+          <Text size="sm" fw={500} c="dimmed" mb="xs">
             Pending Reviews
-          </h3>
-          <p className="text-3xl font-bold text-gray-900">0</p>
-          <p className="mt-1 text-sm text-gray-500">All caught up</p>
-        </div>
+          </Text>
+          <Text size="xl" fw={700}>0</Text>
+          <Text size="sm" c="dimmed">All caught up</Text>
+        </Card>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-2 text-sm font-medium text-gray-600">
+        <Card withBorder padding="lg">
+          <Text size="sm" fw={500} c="dimmed" mb="xs">
             Active Policies
-          </h3>
-          <p className="text-3xl font-bold text-gray-900">0</p>
-          <p className="mt-1 text-sm text-gray-500">No policies configured</p>
-        </div>
+          </Text>
+          <Text size="xl" fw={700}>0</Text>
+          <Text size="sm" c="dimmed">No policies configured</Text>
+        </Card>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-2 text-sm font-medium text-gray-600">
+        <Card withBorder padding="lg">
+          <Text size="sm" fw={500} c="dimmed" mb="xs">
             Categories
-          </h3>
-          <p className="text-3xl font-bold text-gray-900">0</p>
-          <p className="mt-1 text-sm text-gray-500">No categories created</p>
-        </div>
-      </div>
+          </Text>
+          <Text size="xl" fw={700}>0</Text>
+          <Text size="sm" c="dimmed">No categories created</Text>
+        </Card>
+      </SimpleGrid>
 
-      <div className="mt-8 rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center">
-        <h2 className="mb-2 text-xl font-semibold text-gray-900">
-          Welcome to your organization
-        </h2>
-        <p className="text-gray-600">
-          Start by creating categories and policies to manage expenses.
-        </p>
-      </div>
-    </div>
+      <Card withBorder p="xl" ta="center">
+        <Stack align="center" gap="sm">
+          <Title order={2}>Welcome to your organization</Title>
+          <Text c="dimmed">
+            Start by creating categories and policies to manage expenses.
+          </Text>
+        </Stack>
+      </Card>
+    </Container>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Container, Title, Button, Table, Text, Card, Stack, Group, Skeleton, SegmentedControl, Modal, Box } from "@mantine/core";
 import { api } from "~/trpc/react";
 
 export default function GroupsPage() {
@@ -9,7 +10,7 @@ export default function GroupsPage() {
   const router = useRouter();
   const orgId = params.orgId as string;
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "hierarchy">("hierarchy");
+  const [viewMode, setViewMode] = useState<string>("hierarchy");
 
   const { data: groups, isLoading } = api.group.list.useQuery({
     organizationId: orgId,
@@ -42,19 +43,19 @@ export default function GroupsPage() {
 
   if (isLoading) {
     return (
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="h-9 w-48 animate-pulse rounded bg-gray-200"></div>
-          <div className="h-10 w-36 animate-pulse rounded-lg bg-gray-200"></div>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="space-y-4">
+      <Container size="xl" py="xl">
+        <Group justify="space-between" mb="xl">
+          <Skeleton height={36} width={150} />
+          <Skeleton height={36} width={130} />
+        </Group>
+        <Card withBorder>
+          <Stack gap="md">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded bg-gray-100"></div>
+              <Skeleton key={i} height={60} />
             ))}
-          </div>
-        </div>
-      </div>
+          </Stack>
+        </Card>
+      </Container>
     );
   }
 
@@ -62,227 +63,167 @@ export default function GroupsPage() {
 
   const renderGroupNode = (group: HierarchyGroup, depth = 0): React.ReactNode => {
     return (
-      <div key={group.id} style={{ marginLeft: `${depth * 24}px` }}>
-        <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 mb-2 hover:bg-gray-50">
-          <div className="flex items-center gap-3">
-            {depth > 0 && (
-              <span className="text-gray-400">└</span>
+      <Box key={group.id} ml={depth * 24}>
+        <Card withBorder p="md" mb="xs">
+          <Group justify="space-between">
+            <Group gap="sm">
+              {depth > 0 && (
+                <Text c="dimmed">└</Text>
+              )}
+              <div>
+                <Text fw={500}>{group.name}</Text>
+                <Text size="sm" c="dimmed">
+                  {group.members.length} member{group.members.length !== 1 ? "s" : ""}
+                </Text>
+              </div>
+            </Group>
+            {isAdmin && (
+              <Group gap="xs">
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  onClick={() => router.push(`/orgs/${orgId}/groups/${group.id}`)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="subtle"
+                  color="red"
+                  size="xs"
+                  onClick={() => setDeleteId(group.id)}
+                >
+                  Delete
+                </Button>
+              </Group>
             )}
-            <div>
-              <h3 className="font-medium text-gray-900">{group.name}</h3>
-              <p className="text-sm text-gray-500">
-                {group.members.length} member{group.members.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
-          {isAdmin && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => router.push(`/orgs/${orgId}/groups/${group.id}`)}
-                className="text-sm text-indigo-600 hover:text-indigo-900"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => setDeleteId(group.id)}
-                className="text-sm text-red-600 hover:text-red-900"
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
-        {group.children && group.children.map((child) => renderGroupNode(child as HierarchyGroup, depth + 1))}
-      </div>
+          </Group>
+        </Card>
+        {group.children?.map((child) => renderGroupNode(child as HierarchyGroup, depth + 1))}
+      </Box>
     );
   };
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Groups</h1>
-        <div className="flex items-center gap-4">
-          <div className="flex rounded-lg border border-gray-300 bg-white">
-            <button
-              onClick={() => setViewMode("hierarchy")}
-              className={`px-3 py-1.5 text-sm font-medium ${
-                viewMode === "hierarchy"
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-50"
-              } rounded-l-lg`}
-            >
-              Org Chart
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`px-3 py-1.5 text-sm font-medium ${
-                viewMode === "list"
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-50"
-              } rounded-r-lg`}
-            >
-              List
-            </button>
-          </div>
+    <Container size="xl" py="xl">
+      <Group justify="space-between" mb="xl" wrap="wrap">
+        <Title order={1}>Groups</Title>
+        <Group gap="md">
+          <SegmentedControl
+            value={viewMode}
+            onChange={setViewMode}
+            data={[
+              { label: "Org Chart", value: "hierarchy" },
+              { label: "List", value: "list" },
+            ]}
+          />
           {isAdmin && (
-            <button
-              onClick={() => router.push(`/orgs/${orgId}/groups/new`)}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-            >
+            <Button onClick={() => router.push(`/orgs/${orgId}/groups/new`)}>
               Create Group
-            </button>
+            </Button>
           )}
-        </div>
-      </div>
+        </Group>
+      </Group>
 
       {!groups || groups.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center">
-          <h3 className="mb-2 text-lg font-medium text-gray-900">
-            No groups yet
-          </h3>
-          <p className="mb-4 text-gray-600">
-            Groups help organize users into teams and departments for your org chart.
-          </p>
-          {isAdmin && (
-            <button
-              onClick={() => router.push(`/orgs/${orgId}/groups/new`)}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-            >
-              Create Your First Group
-            </button>
-          )}
-        </div>
+        <Card withBorder p="xl" ta="center">
+          <Stack align="center" gap="md">
+            <Title order={3}>No groups yet</Title>
+            <Text c="dimmed">
+              Groups help organize users into teams and departments for your org chart.
+            </Text>
+            {isAdmin && (
+              <Button onClick={() => router.push(`/orgs/${orgId}/groups/new`)}>
+                Create Your First Group
+              </Button>
+            )}
+          </Stack>
+        </Card>
       ) : viewMode === "hierarchy" ? (
-        <div className="space-y-2">
+        <Stack gap="xs">
           {hierarchy?.map((group) => renderGroupNode(group))}
-        </div>
+        </Stack>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                  >
-                    Name
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                  >
-                    Parent Group
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                  >
-                    Members
-                  </th>
+        <Card withBorder p={0}>
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Name</Table.Th>
+                <Table.Th>Parent Group</Table.Th>
+                <Table.Th>Members</Table.Th>
+                {isAdmin && <Table.Th ta="right">Actions</Table.Th>}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {groups.map((group: { id: string; name: string; parentGroup: { name: string } | null; members: unknown[] }) => (
+                <Table.Tr key={group.id}>
+                  <Table.Td fw={500}>{group.name}</Table.Td>
+                  <Table.Td>
+                    {group.parentGroup?.name ?? (
+                      <Text fs="italic" c="dimmed">
+                        No parent
+                      </Text>
+                    )}
+                  </Table.Td>
+                  <Table.Td>{group.members.length}</Table.Td>
                   {isAdmin && (
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Actions
-                    </th>
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {groups.map((group) => (
-                  <tr key={group.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                      {group.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {group.parentGroup?.name || (
-                        <span className="italic text-gray-400">
-                          No parent
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {group.members.length}
-                    </td>
-                    {isAdmin && (
-                      <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                        <button
-                          onClick={() =>
-                            router.push(`/orgs/${orgId}/groups/${group.id}`)
-                          }
-                          className="mr-4 text-indigo-600 hover:text-indigo-900"
+                    <Table.Td ta="right">
+                      <Group gap="xs" justify="flex-end">
+                        <Button
+                          variant="subtle"
+                          size="xs"
+                          onClick={() => router.push(`/orgs/${orgId}/groups/${group.id}`)}
                         >
                           Edit
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="subtle"
+                          color="red"
+                          size="xs"
                           onClick={() => setDeleteId(group.id)}
-                          className="text-red-600 hover:text-red-900"
                         >
                           Delete
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                        </Button>
+                      </Group>
+                    </Table.Td>
+                  )}
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Card>
       )}
 
-      {deleteId && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black bg-opacity-50"
+      <Modal
+        opened={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Delete Group"
+        centered
+      >
+        <Text mb="md">
+          Are you sure you want to delete &quot;{groups?.find((g: { id: string; name: string }) => g.id === deleteId)?.name}&quot;? Child groups will be orphaned.
+        </Text>
+        {deleteMutation.error && (
+          <Text c="red" size="sm" mb="md">
+            {deleteMutation.error.message}
+          </Text>
+        )}
+        <Group justify="flex-end" gap="sm">
+          <Button
+            variant="outline"
             onClick={() => setDeleteId(null)}
-            aria-hidden="true"
-          />
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-dialog-title"
+            disabled={deleteMutation.isPending}
           >
-            <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-              <h2
-                id="delete-dialog-title"
-                className="mb-4 text-xl font-semibold text-gray-900"
-              >
-                Delete Group
-              </h2>
-              <p className="mb-6 text-gray-600">
-                Are you sure you want to delete &quot;
-                {groups?.find((g) => g.id === deleteId)?.name}&quot;? Child groups will be orphaned.
-              </p>
-              {deleteMutation.error && (
-                <div className="mb-4 rounded-md bg-red-50 p-4">
-                  <p className="text-sm text-red-600">
-                    {deleteMutation.error.message}
-                  </p>
-                </div>
-              )}
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setDeleteId(null)}
-                  disabled={deleteMutation.isPending}
-                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDelete(deleteId)}
-                  disabled={deleteMutation.isPending}
-                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+            Cancel
+          </Button>
+          <Button
+            color="red"
+            onClick={() => deleteId && handleDelete(deleteId)}
+            loading={deleteMutation.isPending}
+          >
+            Delete
+          </Button>
+        </Group>
+      </Modal>
+    </Container>
   );
 }

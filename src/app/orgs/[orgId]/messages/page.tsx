@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { Container, Title, Text, Textarea, Button, Card, Stack, Group, Alert, Avatar, Loader, Center } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { useState } from "react";
 
@@ -31,98 +32,72 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Message Board</h1>
-        <p className="mt-2 text-gray-600">
-          Share updates and chat with your team
-        </p>
-      </div>
+    <Container size="xl" py="xl">
+      <Title order={1} mb="xs">Message Board</Title>
+      <Text c="dimmed" mb="xl">
+        Share updates and chat with your team
+      </Text>
 
-      {/* Message input form */}
-      <form
-        onSubmit={handleSubmit}
-        className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-      >
-        <label htmlFor="message" className="mb-2 block text-sm font-medium text-gray-900">
-          Post a message
-        </label>
-        <textarea
-          id="message"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="What's on your mind?"
-          className="block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          rows={3}
-          maxLength={1000}
-        />
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm text-gray-500">
-            {newMessage.length}/1000 characters
-          </span>
-          <button
-            type="submit"
-            disabled={createMutation.isPending || !newMessage.trim()}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {createMutation.isPending ? "Posting..." : "Post Message"}
-          </button>
-        </div>
-        {createMutation.error && (
-          <div className="mt-4 rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-600">{createMutation.error.message}</p>
-          </div>
-        )}
-      </form>
-
-      {/* Messages list */}
-      {isLoading ? (
-        <div className="text-center text-gray-600">Loading messages...</div>
-      ) : messages?.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No messages yet</h3>
-          <p className="mt-2 text-gray-600">Be the first to post a message to the board.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {messages?.map((message) => (
-            <div
-              key={message.id}
-              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+      <Card withBorder p="lg" mb="xl">
+        <form onSubmit={handleSubmit}>
+          <Textarea
+            label="Post a message"
+            placeholder="What's on your mind?"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.currentTarget.value)}
+            rows={3}
+            maxLength={1000}
+            mb="sm"
+          />
+          <Group justify="space-between">
+            <Text size="sm" c="dimmed">
+              {newMessage.length}/1000 characters
+            </Text>
+            <Button
+              type="submit"
+              loading={createMutation.isPending}
+              disabled={!newMessage.trim()}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  {message.author.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={message.author.image}
-                      alt=""
-                      className="h-10 w-10 rounded-full"
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
-                      {(message.author.name ?? message.author.email)?.charAt(0).toUpperCase() ?? "?"}
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
+              Post Message
+            </Button>
+          </Group>
+          {createMutation.error && (
+            <Alert color="red" mt="md">
+              {createMutation.error.message}
+            </Alert>
+          )}
+        </form>
+      </Card>
+
+      {isLoading ? (
+        <Center py="xl">
+          <Loader />
+        </Center>
+      ) : messages?.length === 0 ? (
+        <Card withBorder p="xl" ta="center">
+          <Stack align="center" gap="md">
+            <Title order={3}>No messages yet</Title>
+            <Text c="dimmed">Be the first to post a message to the board.</Text>
+          </Stack>
+        </Card>
+      ) : (
+        <Stack gap="md">
+          {messages?.map((message: { id: string; content: string; createdAt: Date; author: { name: string | null; email: string | null; image: string | null } }) => (
+            <Card key={message.id} withBorder p="lg">
+              <Group align="flex-start" gap="md">
+                <Avatar
+                  src={message.author.image}
+                  alt=""
+                  radius="xl"
+                >
+                  {(message.author.name ?? message.author.email)?.charAt(0).toUpperCase() ?? "?"}
+                </Avatar>
+                <div style={{ flex: 1 }}>
+                  <Group justify="space-between" mb="xs">
+                    <Text fw={500}>
                       {message.author.name ?? message.author.email ?? "Anonymous"}
-                    </p>
-                    <p className="text-xs text-gray-500">
+                    </Text>
+                    <Text size="xs" c="dimmed">
                       {new Date(message.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -130,15 +105,15 @@ export default function MessagesPage() {
                         hour: "numeric",
                         minute: "2-digit",
                       })}
-                    </p>
-                  </div>
+                    </Text>
+                  </Group>
+                  <Text style={{ whiteSpace: "pre-wrap" }}>{message.content}</Text>
                 </div>
-              </div>
-              <p className="mt-4 whitespace-pre-wrap text-gray-700">{message.content}</p>
-            </div>
+              </Group>
+            </Card>
           ))}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Container>
   );
 }

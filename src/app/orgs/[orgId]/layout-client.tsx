@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import { AppShell, Group, Text, Button, NavLink, Box } from "@mantine/core";
 import { OrgSelector } from "~/app/_components/org-selector";
 
 export default function OrgLayoutClient({
@@ -25,51 +26,50 @@ export default function OrgLayoutClient({
   ];
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold text-gray-900">
-              Expensify Clone
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
+    <AppShell
+      header={{ height: 60 }}
+      navbar={{ width: 250, breakpoint: "sm" }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Group h="100%" px="md" justify="space-between">
+          <Text fw={600} size="lg">
+            Expensify Clone
+          </Text>
+          <Group gap="md">
             <OrgSelector />
-            <Link
+            <Button
+              component={Link}
               href="/api/auth/signout"
-              className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200"
+              variant="light"
+              color="gray"
+              size="sm"
             >
               Sign Out
-            </Link>
-          </div>
-        </div>
-      </header>
+            </Button>
+          </Group>
+        </Group>
+      </AppShell.Header>
 
-      <div className="flex flex-1">
-        <aside className="w-64 border-r border-gray-200 bg-white">
-          <nav className="flex flex-col gap-1 p-4" aria-label="Main navigation">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
+      <AppShell.Navbar p="md">
+        <Box component="nav" aria-label="Main navigation">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <NavLink
+                key={item.href}
+                component={Link}
+                href={item.href}
+                label={item.label}
+                active={isActive}
+                aria-current={isActive ? "page" : undefined}
+              />
+            );
+          })}
+        </Box>
+      </AppShell.Navbar>
 
-        <main className="flex-1 bg-gray-50">{children}</main>
-      </div>
-    </div>
+      <AppShell.Main>{children}</AppShell.Main>
+    </AppShell>
   );
 }
