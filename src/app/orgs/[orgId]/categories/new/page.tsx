@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Container, Title, Text, TextInput, Textarea, Button, Group, Card, Skeleton, Alert } from "@mantine/core";
 import { api } from "~/trpc/react";
 
 export default function NewCategoryPage() {
@@ -14,14 +15,13 @@ export default function NewCategoryPage() {
   const [nameError, setNameError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
 
-  const { data, isLoading: membershipLoading } =
-    api.organization.getById.useQuery({
-      id: orgId,
-    });
+  const { data, isLoading: membershipLoading } = api.organization.getById.useQuery({
+    id: orgId,
+  });
 
   const membership = data?.currentUserMembership;
 
-  const utils = api.useUtils()
+  const utils = api.useUtils();
 
   const createMutation = api.category.create.useMutation({
     onSuccess: () => {
@@ -37,14 +37,10 @@ export default function NewCategoryPage() {
 
   if (membershipLoading) {
     return (
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl">
-          <div className="mb-6">
-            <div className="h-9 w-64 animate-pulse rounded bg-gray-200"></div>
-            <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200"></div>
-          </div>
-        </div>
-      </div>
+      <Container size="sm" py="xl">
+        <Skeleton height={36} width={250} mb="xs" />
+        <Skeleton height={20} width={350} mb="xl" />
+      </Container>
     );
   }
 
@@ -83,119 +79,66 @@ export default function NewCategoryPage() {
   };
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Create Category</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Create a new expense category for your organization.
-          </p>
-        </div>
+    <Container size="sm" py="xl">
+      <Title order={1} mb="xs">Create Category</Title>
+      <Text c="dimmed" mb="xl">
+        Create a new expense category for your organization.
+      </Text>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-        >
-          <div className="mb-6">
-            <label
-              htmlFor="category-name"
-              className="mb-2 block text-sm font-medium text-gray-900"
-            >
-              Category Name
-              <span className="ml-1 text-red-500" aria-label="required">
-                *
-              </span>
-            </label>
-            <input
-              type="text"
-              id="category-name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setNameError("");
-              }}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Travel, Meals, Equipment, etc."
-              disabled={createMutation.isPending}
-              maxLength={100}
-              aria-required="true"
-              aria-invalid={!!nameError}
-              aria-describedby={nameError ? "name-error" : "name-hint"}
-            />
-            <p id="name-hint" className="mt-1 text-xs text-gray-500">
-              {name.length}/100 characters
-            </p>
-            {nameError && (
-              <p id="name-error" className="mt-2 text-sm text-red-600">
-                {nameError}
-              </p>
-            )}
-          </div>
+      <Card withBorder p="lg">
+        <form onSubmit={handleSubmit}>
+          <TextInput
+            label="Category Name"
+            placeholder="Travel, Meals, Equipment, etc."
+            value={name}
+            onChange={(e) => {
+              setName(e.currentTarget.value);
+              setNameError("");
+            }}
+            error={nameError}
+            disabled={createMutation.isPending}
+            required
+            maxLength={100}
+            description={`${name.length}/100 characters`}
+            mb="md"
+          />
 
-          <div className="mb-6">
-            <label
-              htmlFor="category-description"
-              className="mb-2 block text-sm font-medium text-gray-900"
-            >
-              Description
-              <span className="ml-1 text-sm font-normal text-gray-500">
-                (optional)
-              </span>
-            </label>
-            <textarea
-              id="category-description"
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                setDescriptionError("");
-              }}
-              rows={3}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Brief description of this category..."
-              disabled={createMutation.isPending}
-              maxLength={500}
-              aria-invalid={!!descriptionError}
-              aria-describedby={
-                descriptionError ? "description-error" : "description-hint"
-              }
-            />
-            <p id="description-hint" className="mt-1 text-xs text-gray-500">
-              {description.length}/500 characters
-            </p>
-            {descriptionError && (
-              <p id="description-error" className="mt-2 text-sm text-red-600">
-                {descriptionError}
-              </p>
-            )}
-          </div>
+          <Textarea
+            label="Description"
+            description={`${description.length}/500 characters (optional)`}
+            placeholder="Brief description of this category..."
+            value={description}
+            onChange={(e) => {
+              setDescription(e.currentTarget.value);
+              setDescriptionError("");
+            }}
+            error={descriptionError}
+            disabled={createMutation.isPending}
+            maxLength={500}
+            rows={3}
+            mb="md"
+          />
 
           {createMutation.error && !nameError && (
-            <div className="mb-6 rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-600">
-                {createMutation.error.message}
-              </p>
-            </div>
+            <Alert color="red" mb="md">
+              {createMutation.error.message}
+            </Alert>
           )}
 
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={createMutation.isPending}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+          <Group>
+            <Button type="submit" loading={createMutation.isPending}>
               {createMutation.isPending ? "Creating..." : "Create Category"}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => router.push(`/orgs/${orgId}/categories`)}
               disabled={createMutation.isPending}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
-            </button>
-          </div>
+            </Button>
+          </Group>
         </form>
-      </div>
-    </div>
+      </Card>
+    </Container>
   );
 }

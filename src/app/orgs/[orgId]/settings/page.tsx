@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { Container, Title, Text, TextInput, Select, Button, Group, Card, Table, Badge, Stack, Alert, Loader, Center } from "@mantine/core";
 import { api } from "~/trpc/react";
 
 export default function OrganizationSettingsPage() {
@@ -22,36 +23,32 @@ export default function OrganizationSettingsPage() {
 
   if (orgLoading || membersLoading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-gray-600">Loading settings...</div>
-        </div>
-      </div>
+      <Container size="xl" py="xl">
+        <Center py="xl">
+          <Loader />
+        </Center>
+      </Container>
     );
   }
 
   if (!org) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-800">Organization not found</p>
-        </div>
-      </div>
+      <Container size="xl" py="xl">
+        <Alert color="red">Organization not found</Alert>
+      </Container>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Organization Settings</h1>
-        <p className="mt-2 text-gray-600">
-          Manage your organization details and members
-        </p>
-      </div>
+    <Container size="xl" py="xl">
+      <Title order={1} mb="xs">Organization Settings</Title>
+      <Text c="dimmed" mb="xl">
+        Manage your organization details and members
+      </Text>
 
-      <div className="space-y-8">
+      <Stack gap="lg">
         <OrganizationDetailsSection org={org} isAdmin={isAdmin} />
-        
+
         {isAdmin && (
           <InviteMemberSection orgId={orgId} onSuccess={() => refetchMembers()} />
         )}
@@ -62,8 +59,8 @@ export default function OrganizationSettingsPage() {
           isAdmin={isAdmin}
           onUpdate={() => refetchMembers()}
         />
-      </div>
-    </div>
+      </Stack>
+    </Container>
   );
 }
 
@@ -103,89 +100,63 @@ function OrganizationDetailsSection({
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xl font-semibold text-gray-900">
-        Organization Details
-      </h2>
+    <Card withBorder p="lg">
+      <Title order={3} mb="md">Organization Details</Title>
 
-      <div className="space-y-4">
+      <Stack gap="md">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Organization ID
-          </label>
-          <p className="mt-1 font-mono text-sm text-gray-600">{org.id}</p>
+          <Text size="sm" fw={500} c="dimmed">Organization ID</Text>
+          <Text size="sm" ff="monospace">{org.id}</Text>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Created
-          </label>
-          <p className="mt-1 text-sm text-gray-600">
-            {new Date(org.createdAt).toLocaleDateString()}
-          </p>
+          <Text size="sm" fw={500} c="dimmed">Created</Text>
+          <Text size="sm">{new Date(org.createdAt).toLocaleDateString()}</Text>
         </div>
 
         <div>
-          <label htmlFor="org-name" className="block text-sm font-medium text-gray-700">
-            Organization Name
-          </label>
+          <Text size="sm" fw={500} c="dimmed">Organization Name</Text>
           {isEditing && isAdmin ? (
-            <form onSubmit={handleSubmit} className="mt-1 space-y-2">
-              <input
-                type="text"
-                id="org-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                disabled={updateOrg.isPending}
-                aria-required="true"
-                aria-invalid={!!error}
-                aria-describedby={error ? "name-error" : undefined}
-              />
-              {error && (
-                <p id="name-error" className="text-sm text-red-600">
-                  {error}
-                </p>
-              )}
-              <div className="flex gap-2">
-                <button
-                  type="submit"
+            <form onSubmit={handleSubmit}>
+              <Stack gap="sm" mt="xs">
+                <TextInput
+                  value={name}
+                  onChange={(e) => setName(e.currentTarget.value)}
+                  error={error}
                   disabled={updateOrg.isPending}
-                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {updateOrg.isPending ? "Saving..." : "Save"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setName(org.name);
-                    setError("");
-                  }}
-                  disabled={updateOrg.isPending}
-                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-              </div>
+                />
+                <Group>
+                  <Button type="submit" size="xs" loading={updateOrg.isPending}>
+                    Save
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setName(org.name);
+                      setError("");
+                    }}
+                    disabled={updateOrg.isPending}
+                  >
+                    Cancel
+                  </Button>
+                </Group>
+              </Stack>
             </form>
           ) : (
-            <div className="mt-1 flex items-center gap-2">
-              <p className="text-sm text-gray-900">{org.name}</p>
+            <Group gap="sm">
+              <Text size="sm">{org.name}</Text>
               {isAdmin && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="text-sm text-indigo-600 hover:text-indigo-700"
-                  aria-label="Edit organization name"
-                >
+                <Button variant="subtle" size="xs" onClick={() => setIsEditing(true)}>
                   Edit
-                </button>
+                </Button>
               )}
-            </div>
+            </Group>
           )}
         </div>
-      </div>
-    </section>
+      </Stack>
+    </Card>
   );
 }
 
@@ -197,7 +168,7 @@ function InviteMemberSection({
   onSuccess: () => void;
 }) {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"ADMIN" | "MEMBER">("MEMBER");
+  const [role, setRole] = useState<string | null>("MEMBER");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -230,79 +201,44 @@ function InviteMemberSection({
     inviteUser.mutate({
       organizationId: orgId,
       email: email.trim(),
-      role,
+      role: role as "ADMIN" | "MEMBER",
     });
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xl font-semibold text-gray-900">Invite Member</h2>
+    <Card withBorder p="lg">
+      <Title order={3} mb="md">Invite Member</Title>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="invite-email" className="block text-sm font-medium text-gray-700">
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="invite-email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      <form onSubmit={handleSubmit}>
+        <Stack gap="md">
+          <TextInput
+            label="Email Address"
             placeholder="user@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
             disabled={inviteUser.isPending}
-            aria-required="true"
-            aria-invalid={!!error}
-            aria-describedby={error ? "invite-error" : success ? "invite-success" : undefined}
           />
-        </div>
 
-        <div>
-          <label htmlFor="invite-role" className="block text-sm font-medium text-gray-700">
-            Role
-          </label>
-          <select
-            id="invite-role"
+          <Select
+            label="Role"
             value={role}
-            onChange={(e) => setRole(e.target.value as "ADMIN" | "MEMBER")}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onChange={setRole}
+            data={[
+              { label: "Member", value: "MEMBER" },
+              { label: "Admin", value: "ADMIN" },
+            ]}
             disabled={inviteUser.isPending}
-          >
-            <option value="MEMBER">Member</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-        </div>
+          />
 
-        {error && (
-          <div
-            id="invite-error"
-            className="rounded-md border border-red-200 bg-red-50 p-3"
-            role="alert"
-          >
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+          {error && <Alert color="red">{error}</Alert>}
+          {success && <Alert color="green">{success}</Alert>}
 
-        {success && (
-          <div
-            id="invite-success"
-            className="rounded-md border border-green-200 bg-green-50 p-3"
-            role="status"
-            aria-live="polite"
-          >
-            <p className="text-sm text-green-800">{success}</p>
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={inviteUser.isPending}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {inviteUser.isPending ? "Inviting..." : "Send Invitation"}
-        </button>
+          <Button type="submit" loading={inviteUser.isPending}>
+            Send Invitation
+          </Button>
+        </Stack>
       </form>
-    </section>
+    </Card>
   );
 }
 
@@ -348,11 +284,7 @@ function MembersSection({
   });
 
   const handleRemoveMember = (userId: string, userName: string) => {
-    if (
-      confirm(
-        `Are you sure you want to remove ${userName} from this organization?`
-      )
-    ) {
+    if (confirm(`Are you sure you want to remove ${userName} from this organization?`)) {
       setRemovingUserId(userId);
       removeMember.mutate({ organizationId: orgId, userId });
     }
@@ -368,116 +300,70 @@ function MembersSection({
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xl font-semibold text-gray-900">
-        Members ({members.length})
-      </h2>
+    <Card withBorder p="lg">
+      <Title order={3} mb="md">Members ({members.length})</Title>
 
       {members.length === 0 ? (
-        <p className="text-sm text-gray-600">No members yet</p>
+        <Text size="sm" c="dimmed">No members yet</Text>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                >
-                  Name
-                </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                >
-                  Email
-                </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                >
-                  Role
-                </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                >
-                  Joined
-                </th>
-                {isAdmin && (
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
-                  >
-                    Actions
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {members.map((member) => (
-                <tr key={member.userId} className="hover:bg-gray-50">
-                  <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-gray-900">
-                    {member.user.name ?? "—"}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
-                    {member.user.email ?? "—"}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm">
-                    {isAdmin ? (
-                      <select
-                        value={member.role}
-                        onChange={(e) =>
-                          handleRoleChange(
-                            member.userId,
-                            e.target.value as "ADMIN" | "MEMBER"
-                          )
-                        }
-                        disabled={changingRoleUserId === member.userId}
-                        className="rounded-md border border-gray-300 px-2 py-1 text-xs font-semibold focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label={`Change role for ${member.user.name ?? member.user.email ?? "user"}`}
-                      >
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="MEMBER">MEMBER</option>
-                      </select>
-                    ) : (
-                      <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                          member.role === "ADMIN"
-                            ? "bg-indigo-100 text-indigo-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {member.role}
-                      </span>
-                    )}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
-                    {new Date(member.createdAt).toLocaleDateString()}
-                  </td>
-                  {isAdmin && (
-                    <td className="whitespace-nowrap px-4 py-4 text-right text-sm">
-                      <button
-                        onClick={() =>
-                          handleRemoveMember(
-                            member.userId,
-                            member.user.name ?? member.user.email ?? "user"
-                          )
-                        }
-                        disabled={removingUserId === member.userId}
-                        className="text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label={`Remove ${member.user.name ?? member.user.email ?? "user"}`}
-                      >
-                        {removingUserId === member.userId ? "Removing..." : "Remove"}
-                      </button>
-                    </td>
+        <Table striped highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Name</Table.Th>
+              <Table.Th>Email</Table.Th>
+              <Table.Th>Role</Table.Th>
+              <Table.Th>Joined</Table.Th>
+              {isAdmin && <Table.Th ta="right">Actions</Table.Th>}
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {members.map((member) => (
+              <Table.Tr key={member.userId}>
+                <Table.Td fw={500}>{member.user.name ?? "-"}</Table.Td>
+                <Table.Td>{member.user.email ?? "-"}</Table.Td>
+                <Table.Td>
+                  {isAdmin ? (
+                    <Select
+                      size="xs"
+                      value={member.role}
+                      onChange={(value) => handleRoleChange(member.userId, value as "ADMIN" | "MEMBER")}
+                      data={[
+                        { label: "Admin", value: "ADMIN" },
+                        { label: "Member", value: "MEMBER" },
+                      ]}
+                      disabled={changingRoleUserId === member.userId}
+                      w={100}
+                    />
+                  ) : (
+                    <Badge color={member.role === "ADMIN" ? "indigo" : "gray"} variant="light">
+                      {member.role}
+                    </Badge>
                   )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                </Table.Td>
+                <Table.Td>{new Date(member.createdAt).toLocaleDateString()}</Table.Td>
+                {isAdmin && (
+                  <Table.Td ta="right">
+                    <Button
+                      variant="subtle"
+                      color="red"
+                      size="xs"
+                      onClick={() =>
+                        handleRemoveMember(
+                          member.userId,
+                          member.user.name ?? member.user.email ?? "user"
+                        )
+                      }
+                      loading={removingUserId === member.userId}
+                    >
+                      Remove
+                    </Button>
+                  </Table.Td>
+                )}
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
       )}
-    </section>
+    </Card>
   );
 }

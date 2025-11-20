@@ -105,7 +105,7 @@ describe("reviewRouter", () => {
       const admin1 = await createTestUser({ name: "Admin 1" });
       const admin2 = await createTestUser({ name: "Admin 2" });
       const org1 = await createTestOrganization(admin1.id);
-      const org2 = await createTestOrganization(admin2.id);
+      await createTestOrganization(admin2.id);
       const category = await createTestCategory(org1.id);
       const expense = await createTestExpense(org1.id, admin1.id, category.id);
 
@@ -283,7 +283,7 @@ describe("reviewRouter", () => {
       const admin1 = await createTestUser({ name: "Admin 1" });
       const admin2 = await createTestUser({ name: "Admin 2" });
       const org1 = await createTestOrganization(admin1.id);
-      const org2 = await createTestOrganization(admin2.id);
+      await createTestOrganization(admin2.id);
       const category = await createTestCategory(org1.id);
       const expense = await createTestExpense(org1.id, admin1.id, category.id);
 
@@ -502,7 +502,7 @@ describe("reviewRouter", () => {
       const admin1 = await createTestUser({ name: "Admin 1" });
       const admin2 = await createTestUser({ name: "Admin 2" });
       const org1 = await createTestOrganization(admin1.id);
-      const org2 = await createTestOrganization(admin2.id);
+      await createTestOrganization(admin2.id);
 
       const session = createMockSession(admin2);
       const caller = reviewRouter.createCaller({

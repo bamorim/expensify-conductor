@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Container, Title, Button, Text, Group, Card, SimpleGrid, Center, Stack, Loader, Badge } from "@mantine/core";
 import { api } from "~/trpc/react";
 
 export default function OrganizationsPage() {
@@ -8,63 +9,61 @@ export default function OrganizationsPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-gray-600">Loading organizations...</div>
-        </div>
-      </div>
+      <Container size="xl" py="xl">
+        <Center py="xl">
+          <Loader />
+        </Center>
+      </Container>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Your Organizations</h1>
-        <Link
-          href="/app/organizations/new"
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-        >
+    <Container size="xl" py="xl">
+      <Group justify="space-between" mb="xl">
+        <Title order={1}>Your Organizations</Title>
+        <Button component={Link} href="/app/organizations/new">
           Create New Organization
-        </Link>
-      </div>
+        </Button>
+      </Group>
 
       {!organizations || organizations.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center">
-          <h3 className="mb-2 text-lg font-medium text-gray-900">
-            No organizations yet
-          </h3>
-          <p className="mb-4 text-gray-600">
-            Get started by creating your first organization.
-          </p>
-          <Link
-            href="/app/organizations/new"
-            className="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-          >
-            Create Organization
-          </Link>
-        </div>
+        <Card withBorder p="xl" ta="center">
+          <Stack align="center" gap="md">
+            <Title order={3}>No organizations yet</Title>
+            <Text c="dimmed">
+              Get started by creating your first organization.
+            </Text>
+            <Button component={Link} href="/app/organizations/new">
+              Create Organization
+            </Button>
+          </Stack>
+        </Card>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
           {organizations.map((org) => (
-            <Link
+            <Card
               key={org.id}
+              component={Link}
               href={`/orgs/${org.id}/dashboard`}
-              className="block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+              withBorder
+              padding="lg"
+              style={{ cursor: "pointer" }}
             >
-              <h2 className="mb-2 text-xl font-semibold text-gray-900">
+              <Title order={3} mb="xs">
                 {org.name}
-              </h2>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>
+              </Title>
+              <Group gap="xs">
+                <Badge variant="light" size="sm">
                   {org.memberships[0]?.role === "ADMIN" ? "Admin" : "Member"}
-                </span>
-                <span>•</span>
-                <span>{org.memberships.length} member(s)</span>
-              </div>
-            </Link>
+                </Badge>
+                <Text size="sm" c="dimmed">
+                  {org.memberships.length} member(s)
+                </Text>
+              </Group>
+            </Card>
           ))}
-        </div>
+        </SimpleGrid>
       )}
-    </div>
+    </Container>
   );
 }
