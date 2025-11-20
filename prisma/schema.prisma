@@ -20,6 +20,7 @@ model Organization {
     categories       ExpenseCategory[]
     policies         Policy[]
     expenses         Expense[]
+    messages         Message[]
 }
 
 model OrganizationMembership {
@@ -178,6 +179,23 @@ model User {
     policies        Policy[]
     expenses        Expense[]
     expenseReviews  ExpenseReview[]
+    messages        Message[]
+}
+
+model Message {
+    id        String   @id @default(cuid())
+    content   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    userId String
+    author User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([organizationId])
+    @@index([userId])
 }
 
 model VerificationToken {
