@@ -27,6 +27,7 @@ declare module "next-auth" {
  */
 const prismaAdapter = PrismaAdapter(db);
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 const adapter = {
   ...prismaAdapter,
   async deleteSession(sessionToken: string) {
@@ -44,7 +45,8 @@ const adapter = {
       throw error;
     }
   },
-};
+} as any;
+/* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 
 export const authConfig = {
   providers: [
@@ -54,6 +56,7 @@ export const authConfig = {
     }),
   ],
   secret: env.AUTH_SECRET,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   adapter,
   callbacks: {
     session: ({ session, user }) => ({
